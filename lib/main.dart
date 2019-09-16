@@ -16,26 +16,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
+  final title;
   MyHomePage({Key key, this.title}) : super(key: key);
 
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  final bloc = CounterBloc();
+  final bloc =  new CounterBloc(initialCount: 0);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(title),
       ),
       body:  Center(child: StreamBuilder (
-        stream: bloc.counter,
+        
         initialData: 0,
         builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
             return Column(
@@ -44,10 +38,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 Text(
                   'You have pushed the button this many times:',
                 ),
-                Text(
-                  '${snapshot.data}',
-                  style: Theme.of(context).textTheme.display1,
-                ),
+               new StreamBuilder(stream: bloc.observable, builder: (context, AsyncSnapshot<int> snapshot){
+              return new Text('${snapshot.data}', style: Theme.of(context).textTheme.display1);
+            })
               ],
             );
           },),),
@@ -55,13 +48,13 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           FloatingActionButton(
-             onPressed: () => bloc.dispatchEvent(IncrementEvent()),
+             onPressed: () => bloc.increment(),
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ),
           SizedBox(width: 10),
           FloatingActionButton(
-            onPressed: () => bloc.dispatchEvent(DecrementEvent()),
+            onPressed: () => bloc.decrement(),
             tooltip: 'Decrement',
             child: Icon(Icons.remove),
           ),
@@ -69,4 +62,11 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  // @override
+  // void dispose() {
+  //   bloc.dispose();
+  //   super.dispose();
+  // }
+
 }

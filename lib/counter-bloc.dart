@@ -1,38 +1,29 @@
-import 'dart:async';
-
-abstract class CounterEvent {}
-
-class IncrementEvent extends CounterEvent {}
-
-class DecrementEvent extends CounterEvent {}
+ 
+import 'package:rxdart/rxdart.dart';
+ 
 
 class CounterBloc {
-  int _counter = 0;
+   int initialCount = 0;
+   BehaviorSubject<int> _subject = BehaviorSubject<int>();
 
-  final _eventController = StreamController<CounterEvent>();
-  final _stateController = StreamController<int>();
-
-  Stream<int> get counter => _stateController.stream;
-  
-  dispatchEvent(CounterEvent event) {
-      _eventController.sink.add(event);
+   CounterBloc({this.initialCount}){
+      _subject = new BehaviorSubject<int>.seeded(this.initialCount);  
   }
 
-  CounterBloc() {
-    _eventController.stream.listen(_mapEventToState);
+  Observable<int> get observable => _subject.stream;
+
+  void increment(){
+    initialCount++;
+    _subject.sink.add(initialCount);
   }
 
-  void _mapEventToState(CounterEvent event) {
-    if (event is IncrementEvent)
-      _counter++;
-    else
-      _counter--;
-
-    _stateController.sink.add(_counter);
+  void decrement(){
+    initialCount--;
+    _subject.sink.add(initialCount);
   }
-
-  void dispose() {
-    _stateController.close();
-    _eventController.close();
+ 
+  dispose() {
+      _subject.close();
   }
 }
+ 
